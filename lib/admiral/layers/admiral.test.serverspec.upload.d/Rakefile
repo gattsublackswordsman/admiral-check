@@ -1,0 +1,17 @@
+require 'rake'
+require 'rspec/core/rake_task'
+
+task :spec    => 'spec:default'
+task :default => :spec
+
+namespace :spec do
+
+  task :default => :localhost
+
+  target = "localhost"
+  desc "Run serverspec tests to #{target}"
+  RSpec::Core::RakeTask.new(target.to_sym) do |t|
+    ENV['TARGET_HOST'] = target
+    t.pattern = "spec/*_spec.rb"
+  end
+end
