@@ -10,19 +10,37 @@ module Admiral
 
     def self.create (platform)
 
-      platform_name = platform["name"]
-      image         = platform["image"]
+      platform_name = platform['name']
+      image         = platform['image']
       docker        = platform['docker']
-      hostname      = platform["hostname"]
+      hostname      = platform['hostname']
       ssh_key_file  = platform['keyfile']
       username      = platform['username']
       password      = platform['password']
+      volumes       = platform['volumes']
 
       last_container_id = get_container_id(platform_name)
       if last_container_id
         puts "Container exist : #{last_container_id}"
       else
         dockerfile = generate_dockerfile(platform)
+
+        volumes_cmd = ''
+
+        if volumes.kind_of?(Array)
+          volumes.each do | volume |
+            if not volume['guest']
+              STDERR.puts "ERROR: Volume must have 'guest' parameter"
+              exit!
+            else
+              if volume['host']
+                volumes_cmd << "-v #{volume['host']}:#{volume['guest']} "
+              else
+                volumes_cmd << "-v #{volume['guest']} "
+              end
+            end
+          end
+        end
 
         puts "=== Create image ==="
         output = Admiral::Shell.local("docker -H #{docker} build --build-arg=USERNAME='#{username}' --build-arg=PASSWORD='#{password}' --no-cache -", {:input => dockerfile}, true)
@@ -39,7 +57,7 @@ module Admiral
 
           puts "=== Create container ==="
 
-          container_id = Admiral::Shell.local("docker -H #{docker} run -d -p 22 -h #{hostname} --privileged --cap-add ALL #{image_id}")
+          container_id = Admiral::Shell.local("docker -H #{docker} run -d -p 22 -h #{hostname} --privileged --cap-add ALL #{volumes_cmd} #{image_id}")
 
           if container_id
             puts "Container ID : #{container_id}"
