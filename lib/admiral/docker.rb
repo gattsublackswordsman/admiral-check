@@ -3,6 +3,7 @@
 
 require 'admiral/config'
 require 'admiral/shell'
+require 'admiral/layer'
 
 module Admiral
   module Docker
@@ -179,15 +180,23 @@ module Admiral
 
       layers = platform['layers']
 
-      layers.each do | layer |
+      layers.each do | layer_uid |
         begin
-          require "admiral/layers/#{layer}.rb"
+          require "admiral/layers/#{layer_uid}.rb"
         rescue LoadError
-          STDERR.puts "Layer #{layer} not found"
+          STDERR.puts "Layer #{layer_uid} not found"
           return false
         end
-        layer = Admiral::Layer.new(platform, ipaddress)
+
+        begin
+          kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
+        rescue NameError
+          STDERR.puts "Layer #{layer_uid} has mistake"
+          return false
+        end
+        layer = kclass.new(platform,ipaddress)
         success = layer.run()
+
         if not success
           return false
         end
@@ -199,14 +208,21 @@ module Admiral
 
       layers = platform['tests']
 
-      layers.each do | layer |
+      layers.each do | layer_uid |
         begin
-          require "admiral/layers/#{layer}.rb"
+          require "admiral/layers/#{layer_uid}.rb"
         rescue LoadError
-          STDERR.puts "Layer #{layer} not found"
+          STDERR.puts "Layer #{layer_uid} not found"
           return false
         end
-        layer = Admiral::Layer.new(platform, ipaddress)
+
+        begin
+          kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
+        rescue NameError
+          STDERR.puts "Layer #{layer_uid} has mistake"
+          return false
+        end
+        layer = kclass.new(platform,ipaddress)
         success = layer.run()
         if not success
           return false

@@ -5,31 +5,33 @@ require 'yaml'
 require 'admiral/layer'
 
 module Admiral
-  class Layer < Admiral::LayerBase
-    def initialize(config, ipaddress)
-      description = "Executing build script"
+  module Layers
+    class AdmiralBuild < Admiral::LayerBase
+      def initialize(config, ipaddress)
+        description = "Executing build script"
 
-      super(description, config, ipaddress)
-    end
-
-    def do_action()
-      username     = @config['username']
-      build_script = @config['build_script']
-      build_env    = @config['build_env']
-
-      work_dir = "/tmp/#{username}/"
-
-      if not File.exists?(build_script)
-        STDERR.puts "File #{build_script} not found"
-        return false
+        super(description, config, ipaddress)
       end
 
-      upload(build_script, work_dir)
+      def do_action()
+        username     = @config['username']
+        build_script = @config['build_script']
+        build_env    = @config['build_env']
 
-      cmd = %Q[bash /tmp/#{username}/#{build_script}]
+        work_dir = "/tmp/#{username}/"
 
-      rc = run_ssh_command(cmd, :env => build_env)
-      return (rc == 0)
+        if not File.exists?(build_script)
+          STDERR.puts "File #{build_script} not found"
+          return false
+        end
+
+        upload(build_script, work_dir)
+
+        cmd = %Q[bash /tmp/#{username}/#{build_script}]
+
+        rc = run_ssh_command(cmd, :env => build_env)
+        return (rc == 0)
+      end
     end
   end
 end

@@ -5,27 +5,32 @@ require 'yaml'
 require 'admiral/layer'
 
 module Admiral
-  class Layer < Admiral::LayerBase
-    def initialize(config, ipaddress)
-      description = "Install serverspec and infraspec"
+  module Layers
+    class AdmiralTestServerspecInstall < Admiral::LayerBase
+      def initialize(config, ipaddress)
+        description = "Install serverspec and infraspec"
 
-      super(description, config, ipaddress)
-    end
+        super(description, config, ipaddress)
+      end
 
-    def do_action()
-      username  = @config['username']
+      def do_action()
+        username  = @config['username']
 
-      gemsdir   = "/tmp/#{username}/gems"
-      cachedir  = "#{gemsdir}/cache"
+        gemsdir   = "/tmp/#{username}/gems"
+        cachedir  = "#{gemsdir}/cache"
 
-      cmd = "mkdir -p #{cachedir};"
-      cmd << %Q[GEM_HOME="#{gemsdir}" GEM_PATH="#{gemsdir}" GEM_CACHE="#{cachedir}";]
-      cmd << %Q[export GEM_HOME GEM_PATH GEM_CACHE;]
-      cmd << %Q[/opt/chef/embedded/bin/gem install serverspec specinfra --no-rdoc --no-ri;]
-      cmd << %Q[chown #{username}:#{username} -R /tmp/#{username}]
+        env = {
+          'username'  => username,
+          'GEM_HOME'  => gemsdir,
+          'GEM_PATH'  => gemsdir,
+          'GEM_CACHE' => cachedir,
+        }
 
-      rc = run_ssh_command(cmd, :allow_proxy => true)
-      return (rc == 0)
+        cmd = "/tmp/#{username}/#{$uid}.sh"
+
+        rc = run_ssh_command(cmd, :allow_proxy => true, :env => env)
+        return (rc == 0)
+      end
     end
   end
 end

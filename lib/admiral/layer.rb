@@ -5,9 +5,30 @@ require 'yaml'
 require 'admiral/config'
 require 'net/ssh'
 require 'net/scp'
+require 'pp'
 
 module Admiral
+
+  module Layer
+    def self.uid_to_name(uid)
+      class_name = ''
+
+      l = uid.split('.')
+      l.each do |word|
+        class_name <<  word.capitalize
+      end
+
+      return class_name
+    end
+  end
+
   class LayerBase
+
+    def self.inherited(subclass)
+      file = caller.first[/^[^:]+/]
+      $uid = File.basename(file,File.extname(file))
+      $location = File.dirname(file)
+    end
 
     def initialize(description, config, ipaddress)
       @description = description
@@ -17,6 +38,28 @@ module Admiral
 
     def run()
       puts "--- #{@description} ---"
+      username = @config['username']
+
+      layer_location   = $location
+      layer_uid        = $uid
+
+      layer_folder     = "#{layer_location}/#{layer_uid}.d"
+      layer_shell      = "#{layer_location}/#{layer_uid}.sh"
+      layer_perl       = "#{layer_location}/#{layer_uid}.pl"
+      layer_remote_dir = "/tmp/#{username}/"
+
+      if File.exists?(layer_folder)
+        upload(layer_folder, layer_remote_dir)
+      end
+
+      if File.exists?(layer_shell)
+        upload(layer_shell, layer_remote_dir)
+      end
+
+     if File.exists?(layer_perl)
+        upload(layer_perl, layer_remote_dir)
+      end
+
       success = do_action()
       return success
     end
@@ -60,7 +103,6 @@ module Admiral
               STDERR.puts "FAILED: couldn't execute command (#{command})"
               return false
             end
-
 
             channel.on_data do |ch, data|
               puts data
