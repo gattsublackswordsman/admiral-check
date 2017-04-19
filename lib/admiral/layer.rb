@@ -76,6 +76,7 @@ module Admiral
       allow_proxy = options.fetch(:allow_proxy, false)
       env = options.fetch(:env, nil)
 
+      env_array = []
       cmd = ""
 
       if allow_proxy and  proxy_url
@@ -89,13 +90,14 @@ module Admiral
 
       if not env.nil?
         env.each do |key, value|
-          ssh_cmd << %Q[#{key}="#{value}" ]
+          ENV[key] = value
+          env_array << key
         end
       end
 
       ssh_cmd << "sudo -E sh -c '#{cmd}'"
 
-      Net::SSH.start(@ipaddress, username, :host_key => "ssh-rsa", :keys => [ keyfile ], :user_known_hosts_file => '/dev/null') do |ssh|
+      Net::SSH.start(@ipaddress, username, :host_key => "ssh-rsa", :keys => [ keyfile ], :user_known_hosts_file => '/dev/null', :send_env => env_array) do |ssh|
 
         ssh.open_channel do |channel|
           channel.exec(ssh_cmd) do |ch, success|
