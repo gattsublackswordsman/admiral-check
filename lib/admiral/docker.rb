@@ -280,7 +280,11 @@ module Admiral
         RUN chown ${USERNAME}:${USERNAME} /tmp/${USERNAME}
       eos
 
-      [from, user, key, tmpdir].join("\n")
+      ssh_env = <<-eos
+        RUN echo "AcceptEnv *" >> /etc/ssh/sshd_config
+      eos
+
+      [from, user, key, tmpdir, ssh_env].join("\n")
     end
 
     def self.extract_ipaddress(container_info)
