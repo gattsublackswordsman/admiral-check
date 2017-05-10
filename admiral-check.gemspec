@@ -17,6 +17,12 @@ Gem::Specification.new do |spec|
   spec.executables   = %w(admiral)
   spec.require_paths = ['lib']
 
+  spec.add_runtime_dependency 'mixlib-shellout', '~> 1.6.1'
+  spec.add_runtime_dependency 'net-scp', '~> 1.1'
+  spec.add_runtime_dependency 'net-ssh', '~> 2.7'
+  spec.add_runtime_dependency 'safe_yaml', '~> 1.0'
+  spec.add_runtime_dependency 'thor', '~> 0.18'
+
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
 end
