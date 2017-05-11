@@ -43,7 +43,13 @@ module Admiral
         end
 
         puts "=== Create image ==="
-        output = Admiral::Shell.local("docker -H #{docker} build --build-arg=USERNAME='#{username}' --build-arg=PASSWORD='#{password}' --no-cache -", {:input => dockerfile}, true)
+
+        begin
+          output = Admiral::Shell.local("docker -H #{docker} build --build-arg=USERNAME='#{username}' --build-arg=PASSWORD='#{password}' --no-cache -", {:input => dockerfile}, true)
+        rescue Interrupt
+            STDERR.puts "Creation interrupted"
+            exit!
+        end
 
         if output
 
@@ -56,7 +62,6 @@ module Admiral
           f.close
 
           puts "=== Create container ==="
-
           container_id = Admiral::Shell.local("docker -H #{docker} run -d -p 22 -h #{hostname} --privileged --cap-add ALL #{volumes_cmd} #{image_id}")
 
           if container_id
@@ -256,9 +261,14 @@ module Admiral
       pubkeyfile = platform['pubkeyfile']
       registry   = platform['registry']
 
-      f = File.open(pubkeyfile, 'r')
-      public_key = f.read().chomp()
-      f.close
+      begin
+        f = File.open(pubkeyfile, 'r')
+        public_key = f.read().chomp()
+        f.close
+      rescue Errno::ENOENT  => e
+         STDERR.puts "Error with public key : #{e.message}"
+         exit!
+      end
 
       from = "FROM #{registry}/#{image}\n"
 

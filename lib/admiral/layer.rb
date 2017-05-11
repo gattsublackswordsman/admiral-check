@@ -56,17 +56,29 @@ module Admiral
         upload(layer_shell, layer_remote_dir)
       end
 
-     if File.exists?(layer_perl)
+      if File.exists?(layer_perl)
         upload(layer_perl, layer_remote_dir)
       end
 
-      success = do_action()
+      begin
+        success = do_action()
+      rescue Interrupt
+        STDERR.puts "Layer interrupted"
+        return false
+      rescue Errno::EACCES, Errno::ENOENT, Errno::ECONNREFUSED, IOError => e
+        STDERR.puts "Layer has error : #{e.message}"
+        return false
+      rescue Net::SSH::AuthenticationFailed
+        STDERR.puts "Layer has error : SSH - Authentication failed"
+        return false
+      end
+
       return success
     end
 
     def do_action()
       STDERR.puts "do_action must be implemented"
-      exit!
+      return false
     end
 
     def run_ssh_command(command, options = {})
