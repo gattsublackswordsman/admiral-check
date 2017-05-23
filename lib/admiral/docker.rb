@@ -229,11 +229,17 @@ module Admiral
           return false
         end
         layer = kclass.new(platform,ipaddress)
-        success = layer.run()
 
+        valid = layer.verify()
+        if not valid
+          return false
+        end
+
+        success = layer.run()
         if not success
           return false
         end
+
       end
       return true
     end
@@ -257,10 +263,17 @@ module Admiral
           return false
         end
         layer = kclass.new(platform,ipaddress)
+
+        valid = layer.verify()
+        if not valid
+          return false
+        end
+
         success = layer.run()
         if not success
           return false
         end
+
       end
       return true
     end

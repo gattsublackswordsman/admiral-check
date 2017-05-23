@@ -11,7 +11,8 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Retrieving cookbooks for applications from SVN"
 
-        super(description, config, ipaddress)
+        parameters = ['svn_cookbook_base_url', 'svn_user', 'svn_password', 'applications']
+        super(description, config, ipaddress, parameters)
       end
 
       def do_action

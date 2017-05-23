@@ -10,7 +10,8 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Retrieving manifest from SVN"
 
-        super(description, config, ipaddress)
+        parameters = ['manifest_source', 'svn_manifest_base_url', 'svn_user', 'svn_password']
+        super(description, config, ipaddress, parameters)
       end
 
       def do_action

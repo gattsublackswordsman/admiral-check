@@ -10,7 +10,8 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Executing build script"
 
-        super(description, config, ipaddress)
+        parameters = ['build_script', 'build_env']
+        super(description, config, ipaddress, parameters)
       end
 
       def do_action()
