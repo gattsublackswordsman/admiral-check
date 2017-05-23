@@ -8,6 +8,17 @@ require 'admiral/layer'
 module Admiral
   module Docker
 
+    @@core_parameters = ['image', 'username', 'password', 'keyfile', 'pubkeyfile', 'registry', 'layers', 'tests', 'hostname']
+
+    def self.verify (platform)
+      @@core_parameters.each do | parameter |
+        if not platform.key?(parameter)
+          STDERR.puts "Parameter #{parameter} not found"
+          exit!
+        end
+      end
+    end
+
     def self.create (platform)
 
       platform_name = platform['name']

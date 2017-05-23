@@ -15,12 +15,14 @@ module Admiral
       platforms = @config.platforms
       platforms.keys.each do |  platform |
         puts "#{platform}"
-      end 
+      end
     end
 
     desc "create NAME", "Create a container for a platfom"
     def create(platform_name)
+
        if  @config.platform?(platform_name)
+         Admiral::Docker::verify((@config[platform_name]))
          Admiral::Docker::create(@config[platform_name])
        else
          STDERR.puts "Platform #{platform_name} don't exist"
