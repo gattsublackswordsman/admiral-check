@@ -225,7 +225,7 @@ module Admiral
         begin
           kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
         rescue NameError
-          STDERR.puts "Layer #{layer_uid} has mistake"
+          STDERR.puts "Layer #{layer_uid} has a mistake"
           return false
         end
         layer = kclass.new(platform,ipaddress)

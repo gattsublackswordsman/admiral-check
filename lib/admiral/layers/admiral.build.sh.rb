@@ -6,12 +6,13 @@ require 'admiral/layer'
 
 module Admiral
   module Layers
-    class AdmiralBuild < Admiral::LayerBase
+    class AdmiralBuildSh < Admiral::LayerBase
       def initialize(config, ipaddress)
         description = "Executing build script"
 
-        parameters = ['build_script', 'build_env']
-        super(description, config, ipaddress, parameters)
+        super(description, config, ipaddress)
+        add_parameter('build_script', 'Script file for build (ex: bootstap.sh)')
+        add_parameter('build_env', 'Hash of environmental variables (ex: {"param1"=>"value1", "param2"=>"value2"} )')
       end
 
       def do_action()

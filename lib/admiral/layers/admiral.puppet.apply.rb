@@ -10,8 +10,8 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Applying cookbooks"
 
-        parameters = ['manifest']
-        super(description, config, ipaddress, parameters)
+        super(description, config, ipaddress)
+        add_parameter('manifest', 'Manifest file (ex: prod.pp)')
       end
 
       def do_action

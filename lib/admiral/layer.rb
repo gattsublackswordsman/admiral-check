@@ -59,7 +59,7 @@ module Admiral
     def verify ()
       @parameters.each do | parameter |
         if not  @config.key?(parameter['name'])
-          STDERR.puts "Layer #{$uid} requires parameter #{parameter['name']}, but it is not found"
+          STDERR.puts "Layer #{$uid} requires the parameter #{parameter['name']}, but it is not found"
           return false
         end
       end

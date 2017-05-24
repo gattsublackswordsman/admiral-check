@@ -10,8 +10,11 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Configuring proxy for SVN"
 
-        parameters = ['svn_proxy_host', 'svn_proxy_port', 'svn_proxy_user', 'svn_proxy_password']
-        super(description, config, ipaddress, parameters)
+        super(description, config, ipaddress)
+        add_parameter('svn_proxy_host', 'Hostname of the proxy needed to access to svn (ex: proxy.domain.com )')
+        add_parameter('svn_proxy_port', 'Port of the proxy (ex: 80)')
+        add_parameter('svn_proxy_user', 'Username for the proxy (ex: user)')
+        add_parameter('svn_proxy_password', 'Password for the proxy (ex: passwd)')
       end
 
       def do_action

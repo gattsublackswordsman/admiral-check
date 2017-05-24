@@ -14,7 +14,7 @@ module Admiral
         add_parameter('svn_manifest_base_url', 'Root URL where are located the manifests in SVN (ex: https://domain.com/puppet-manifests)')
         add_parameter('manifest_source', 'Path after the root URL (ex: production)')
         add_parameter('svn_user', 'Username for SVN')
-        add_parameter('svn_password', 'Passsword for SVN')
+        add_parameter('svn_password', 'Password for SVN')
       end
 
       def do_action
