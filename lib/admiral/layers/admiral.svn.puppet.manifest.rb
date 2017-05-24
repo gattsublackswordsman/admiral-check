@@ -10,8 +10,11 @@ module Admiral
       def initialize(config, ipaddress)
         description = "Retrieving manifest from SVN"
 
-        parameters = ['manifest_source', 'svn_manifest_base_url', 'svn_user', 'svn_password']
-        super(description, config, ipaddress, parameters)
+        super(description, config, ipaddress)
+        add_parameter('svn_manifest_base_url', 'Root URL where are located the manifests in SVN (ex: https://domain.com/puppet-manifests)')
+        add_parameter('manifest_source', 'Path after the root URL (ex: production)')
+        add_parameter('svn_user', 'Username for SVN')
+        add_parameter('svn_password', 'Passsword for SVN')
       end
 
       def do_action

@@ -26,7 +26,7 @@ module Admiral
          Admiral::Docker::create(@config[platform_name])
        else
          STDERR.puts "Platform #{platform_name} don't exist"
-         exit!         
+         exit!
        end
     end
 
@@ -61,6 +61,25 @@ module Admiral
          STDERR.puts "Platform #{platform_name} don't exist"
          exit!
        end
+    end
+
+    desc "layer-info NAME", "Show informations about a layer"
+    def layer_info(layer_uid)
+      begin
+        require "admiral/layers/#{layer_uid}.rb"
+      rescue LoadError
+        STDERR.puts "Layer #{layer_uid} not found"
+        return false
+      end
+
+      begin
+        kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
+      rescue NameError
+        STDERR.puts "Layer #{layer_uid} has mistake"
+        return false
+      end
+      layer = kclass.new(nil, nil)
+      layer.show_information
     end
   end
 end

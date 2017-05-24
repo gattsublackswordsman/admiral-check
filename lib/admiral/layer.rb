@@ -30,17 +30,36 @@ module Admiral
       $location = File.dirname(file)
     end
 
-    def initialize(description, config, ipaddress, parameters = [])
+    def initialize(description, config, ipaddress)
       @description = description
       @config = config
       @ipaddress = ipaddress
-      @parameters = parameters
+      @parameters = []
+    end
+
+    def add_parameter(name, description)
+       parameter = { 'name'=>name, 'description'=>description }
+       @parameters << parameter
+    end
+
+    def show_information
+       puts "Layer UID:   #{$uid}"
+       puts "Description: #{@description}"
+       if  @parameters.count > 0
+         puts "Paramaters:"
+         @parameters.each do | parameter |
+           puts "  #{parameter['name']} / #{parameter['description']}"
+         end
+       else
+         puts "No paramater"
+       end
+
     end
 
     def verify ()
       @parameters.each do | parameter |
-        if not  @config.key?(parameter)
-          STDERR.puts "Layer #{$uid} requires parameter #{parameter}, but it is not found"
+        if not  @config.key?(parameter['name'])
+          STDERR.puts "Layer #{$uid} requires parameter #{parameter['name']}, but it is not found"
           return false
         end
       end
