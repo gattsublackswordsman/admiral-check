@@ -18,7 +18,7 @@ module Admiral
       end
     end
 
-    desc "create NAME", "Create a container for a platfom"
+    desc "create NAME", "Create a container for a platform"
     def create(platform_name)
 
        if  @config.platform?(platform_name)
@@ -80,6 +80,45 @@ module Admiral
       end
       layer = kclass.new(nil, nil)
       layer.show_information
+    end
+
+
+    desc "config-help", "Show configuration help"
+    def config_help()
+      puts <<-EOF
+
+  The configuration is located in .admiral.yml files.
+  The global configuration is in ~/ and the local configuration is in any other directory.
+
+  common:                                      # Configuration for all plaforms, in global or local configuration
+      docker:     unix:///var/run/docker.sock  # Docker socket
+      registry:   127.0.0.1:5000               # Docker registry
+      username:   admiral                      # Username for Admiral user in the container
+      password:   admiral                      # Password for Admiral
+      keyfile:    docker_id_rsa                # Private Key for Admiral connection in the container
+      pubkeyfile: docker_id_rsa.pub            # Associated public Key
+      volumes:                                 # Optional, list of volumes to export in the container
+       - guest: /path/in/the/guest             # Path of the volume in the container
+         host:  /path/in/the/host              # Optional, path of the real directory
+      layers:                                  # Layers for the configuration
+        - admiral.svn.puppet.manifest
+        - admiral.svn.puppet.cookbook
+        - admiral.puppet.apply
+      tests:                                   # Layers for the tests
+        - admiral.test.chef.install
+        - admiral.test.serverspec.install
+        - admiral.test.serverspec.upload
+        - admiral.test.serverspec.run
+
+  platforms:                                   # List of platforms' configuration, only in local configuration
+    - name:     my-server
+      image:    ubuntu16                       # Docker image
+      hostname: web.domain.lan
+      lsp:      false                          # A layer parameter
+      ...
+
+EOF
+
     end
   end
 end

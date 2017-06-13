@@ -8,7 +8,7 @@ require 'admiral/layer'
 module Admiral
   module Docker
 
-    @@core_parameters = ['image', 'username', 'password', 'keyfile', 'pubkeyfile', 'registry', 'layers', 'tests', 'hostname']
+    @@core_parameters = ['docker', 'image', 'username', 'password', 'keyfile', 'pubkeyfile', 'registry', 'layers', 'tests', 'hostname']
 
     def self.verify (platform)
       @@core_parameters.each do | parameter |
