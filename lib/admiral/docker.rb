@@ -259,7 +259,7 @@ module Admiral
         begin
           kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
         rescue NameError
-          STDERR.puts "Layer #{layer_uid} has mistake"
+          STDERR.puts "Layer #{layer_uid} has a mistake"
           return false
         end
         layer = kclass.new(platform,ipaddress)
@@ -277,6 +277,33 @@ module Admiral
       end
       return true
     end
+
+
+    def self.apply_layer(platform, layer_uid, ipaddress)
+
+      begin
+        require "admiral/layers/#{layer_uid}.rb"
+      rescue LoadError
+        STDERR.puts "Layer #{layer_uid} not found"
+        return false
+      end
+
+      begin
+        kclass = ::Admiral::Layers.const_get(Admiral::Layer.uid_to_name(layer_uid))
+      rescue NameError
+        STDERR.puts "Layer #{layer_uid} has a mistake"
+        return false
+      end
+      layer = kclass.new(platform,ipaddress)
+
+      valid = layer.verify()
+      if not valid
+        return false
+      end
+
+      return layer.run()
+    end
+
 
     def self.generate_dockerfile(platform)
       image      = platform["image"]
@@ -319,6 +346,16 @@ module Admiral
       eos
 
       [from, user, key, tmpdir, ssh_env].join("\n")
+    end
+
+    def self.get_ip_address(docker, container_id)
+      container_info = Admiral::Shell.local("docker -H #{docker} inspect #{container_id}")
+      if container_info
+        data  = YAML.load(container_info).first
+        return data['NetworkSettings']['IPAddress']
+      else
+        return nil
+      end
     end
 
     def self.extract_ipaddress(container_info)

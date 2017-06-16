@@ -159,7 +159,7 @@ module Admiral
             channel.on_request("exit-status") do |ch,data|
               exit_code = data.read_long
               if exit_code > 0
-                STDERR.puts "FAILED: command (#{command}) has failure"
+                STDERR.puts "FAILED: command (#{command}) has failed"
                 return exit_code
               end
             end

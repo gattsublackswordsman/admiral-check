@@ -30,9 +30,38 @@ module Admiral
        end
     end
 
+    desc "apply-layer PLATFORM LAYER", "Apply a layer in an existing container"
+    def apply_layer(platform_name, layer_uid)
+      Admiral::Docker::verify((@config[platform_name]))
+
+      if @config.platform?(platform_name)
+        container_id = Admiral::Docker::get_container_id(platform_name)
+        docker = @config[platform_name]['docker']
+        if container_id
+          ip_address = Admiral::Docker::get_ip_address(docker, container_id)
+          if ip_address
+            success = Admiral::Docker::apply_layer(@config[platform_name], layer_uid, ip_address)
+            if not success
+             STDERR.puts "failed to run the layer"
+             exit!
+            end
+          else
+            STDERR.puts "Failed to get IP address"
+            exit!
+          end
+        else
+          STDERR.puts "Failed to get container ID"
+          exit!
+        end
+      else
+        STDERR.puts "Platform #{platform_name} don't exist"
+        exit!
+      end
+    end
+
     desc "login NAME", "Log in the container"
     def login(platform_name)
-        Admiral::Docker::create(@config[platform_name])
+      Admiral::Docker::create(@config[platform_name])
       if  @config.platform?(platform_name)
         Admiral::Docker::login(@config[platform_name])
       else
