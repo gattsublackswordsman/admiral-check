@@ -85,10 +85,18 @@ module Admiral
             output = Admiral::Shell.local("docker  -H #{docker} inspect #{container_id}")
             if output
               ipaddress = extract_ipaddress(output)
-              puts "=== Configuring container ==="
-              success = self.apply_layers(platform, ipaddress)
-              if not success
-                STDERR.puts "Failed to apply configuration layers, run destroy"
+
+              if self.container_is_avaible?(platform, ipaddress)
+                puts "=== Configuring container ==="
+                success = self.apply_layers(platform, ipaddress)
+
+                if not success
+                  STDERR.puts "Failed to apply configuration layers, run destroy"
+                  destroy(platform)
+                  exit!
+                end
+              else
+                STDERR.puts "Failed to connect to the container, run destroy"
                 destroy(platform)
                 exit!
               end
@@ -105,6 +113,56 @@ module Admiral
         end
       end
     end
+
+    def self.container_is_avaible?(config, ipaddress)
+      username = config['username']
+      keyfile = config['keyfile']
+      max_retry = config.fetch('max_connection_retry', 5)
+
+      success = try_to_connect(max_retry) do
+        sleep(1)
+        Net::SSH.start(ipaddress, username, :host_key => "ssh-rsa", :keys => [ keyfile ], :user_known_hosts_file => '/dev/null', :timeout => 5 ) do |ssh|
+          ssh.exec!('echo "ok"')
+        end
+      end
+
+      return success
+    end
+
+    def self.try_to_connect(max_retry)
+      try = 0
+      print "Waiting for container"
+      STDOUT.flush
+      begin
+        print "."
+        STDOUT.flush
+        yield
+      rescue Errno::ECONNREFUSED => e
+        if try < max_retry
+          try += 1
+          retry
+        else
+          puts 'failed'
+          return false
+        end
+      rescue Net::SSH::AuthenticationFailed
+        STDERR.puts "authentication failed"
+        return false
+      rescue Interrupt
+        STDERR.puts " interrupted"
+        return false
+      rescue Errno::EACCES, Errno::EHOSTUNREACH  => e
+        STDERR.puts "error : #{e.message}"
+        return false
+      rescue Timeout::Error
+        STDERR.puts "timeout"
+        return false
+      end
+
+      puts 'ok'
+      return true
+    end
+    
 
     def self.test (platform)
       platform_name = platform['name']
