@@ -78,19 +78,20 @@ module Admiral
       layer_perl       = "#{layer_location}/#{layer_uid}.pl"
       layer_remote_dir = "/tmp/#{username}/"
 
-      if File.exists?(layer_folder)
-        upload(layer_folder, layer_remote_dir)
-      end
-
-      if File.exists?(layer_shell)
-        upload(layer_shell, layer_remote_dir)
-      end
-
-      if File.exists?(layer_perl)
-        upload(layer_perl, layer_remote_dir)
-      end
-
       begin
+
+        if File.exists?(layer_folder)
+          upload(layer_folder, layer_remote_dir)
+        end
+
+        if File.exists?(layer_shell)
+          upload(layer_shell, layer_remote_dir)
+        end
+
+        if File.exists?(layer_perl)
+          upload(layer_perl, layer_remote_dir)
+        end
+
         success = do_action()
       rescue Interrupt
         STDERR.puts "Layer interrupted"
