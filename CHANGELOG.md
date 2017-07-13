@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+ - Allow using raw docker image
  - layer: include automatic upload in exception handling
  - Check container availability before the configuration
 

@@ -29,6 +29,8 @@ module Admiral
       username      = platform['username']
       password      = platform['password']
       volumes       = platform['volumes']
+      use_raw_image = platform['use_raw_image']
+
 
       last_container_id = get_container_id(platform_name)
       if last_container_id
@@ -56,7 +58,14 @@ module Admiral
         puts "=== Create image ==="
 
         begin
-          output = Admiral::Shell.local("docker -H #{docker} build --build-arg=USERNAME='#{username}' --build-arg=PASSWORD='#{password}' --no-cache -", {:input => dockerfile}, true)
+
+          if not use_raw_image
+            output = Admiral::Shell.local("docker -H #{docker} build --build-arg=USERNAME='#{username}' --build-arg=PASSWORD='#{password}' --no-cache -", {:input => dockerfile}, true)
+          else
+            output = Admiral::Shell.local("docker -H #{docker} build  --no-cache -", {:input => dockerfile}, true)
+          end
+
+
         rescue Interrupt
             STDERR.puts "Creation interrupted"
             exit!
@@ -212,14 +221,15 @@ module Admiral
         puts "No container"
       end
 
-      last_image_id = get_image_id(platform_name)
-
-      if last_container_id
-        puts "Remove image #{last_image_id}"
-        Admiral::Shell.local("docker  -H #{docker} rmi -f #{last_image_id}")
-        File.delete(".states/#{platform_name}.image")
-      else
-        puts "No image"
+      if not use_raw_image = platform['use_raw_image']
+        last_image_id = get_image_id(platform_name)
+        if last_container_id
+          puts "Remove image #{last_image_id}"
+          Admiral::Shell.local("docker  -H #{docker} rmi -f #{last_image_id}")
+          File.delete(".states/#{platform_name}.image")
+        else
+          puts "No image"
+        end
       end
     end
 
@@ -364,11 +374,12 @@ module Admiral
 
 
     def self.generate_dockerfile(platform)
-      image      = platform["image"]
-      username   = platform['username']
-      password   = platform['password']
-      pubkeyfile = platform['pubkeyfile']
-      registry   = platform['registry']
+      image         = platform["image"]
+      username      = platform['username']
+      password      = platform['password']
+      pubkeyfile    = platform['pubkeyfile']
+      registry      = platform['registry']
+      use_raw_image = platform['use_raw_image']
 
       begin
         f = File.open(pubkeyfile, 'r')
@@ -403,7 +414,13 @@ module Admiral
         RUN echo "AcceptEnv *" >> /etc/ssh/sshd_config
       eos
 
-      [from, user, key, tmpdir, ssh_env].join("\n")
+
+      if not use_raw_image
+        [from, user, key, tmpdir, ssh_env].join("\n")
+      else
+        [from].join("\n")
+      end
+
     end
 
     def self.get_ip_address(docker, container_id)
