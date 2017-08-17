@@ -35,11 +35,19 @@ module Admiral
       @config = config
       @ipaddress = ipaddress
       @parameters = []
+      @workdir = "/tmp/#{@config['username']}/#{$uid}.d" if not config.nil?
     end
 
     def add_parameter(name, description)
        parameter = { 'name'=>name, 'description'=>description }
        @parameters << parameter
+    end
+
+    def set_workdir(workdir)
+       if not @config.nil?
+         username = @config['username']
+         @workdir = "/tmp/#{username}/#{workdir}/"
+       end
     end
 
     def show_information
@@ -76,12 +84,14 @@ module Admiral
       layer_folder     = "#{layer_location}/#{layer_uid}.d"
       layer_shell      = "#{layer_location}/#{layer_uid}.sh"
       layer_perl       = "#{layer_location}/#{layer_uid}.pl"
-      layer_remote_dir = "/tmp/#{username}/"
+      layer_remote_dir = @workdir
 
       begin
 
+        run_ssh_command("install -d -o #{username} -g #{username} #{@workdir}")
+
         if File.exists?(layer_folder)
-          upload(layer_folder, layer_remote_dir)
+          upload("#{layer_folder}/.",  layer_remote_dir)
         end
 
         if File.exists?(layer_shell)
