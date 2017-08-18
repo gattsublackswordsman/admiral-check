@@ -11,6 +11,7 @@ module Admiral
         description = "Run RSpec"
 
         super(description, config, ipaddress)
+        set_workdir("admiral.test.serverspec.d")
       end
 
       def do_action()
@@ -21,12 +22,13 @@ module Admiral
 
         env = {
           'username'  => username,
+          'workdir'   => @workdir,
           'GEM_HOME'  => gemsdir,
           'GEM_PATH'  => gemsdir,
           'GEM_CACHE' => cachedir,
         }
 
-        cmd = "/tmp/#{username}/#{$uid}.sh"
+        cmd = "#{@workdir}/#{$uid}.sh"
 
         rc = run_ssh_command(cmd, :env => env)
         return (rc == 0)

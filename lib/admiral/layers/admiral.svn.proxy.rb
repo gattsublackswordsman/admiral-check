@@ -31,7 +31,7 @@ module Admiral
           'svn_proxy_password' => svn_proxy_password,
         }
 
-        cmd = "/tmp/#{username}/#{$uid}.sh"
+        cmd = "#{@workdir}/#{$uid}.sh"
 
         rc = run_ssh_command(cmd, :env => env)
         return (rc == 0)

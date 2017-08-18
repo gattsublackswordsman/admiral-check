@@ -20,16 +20,14 @@ module Admiral
         build_script = @config['build_script']
         build_env    = @config['build_env']
 
-        work_dir = "/tmp/#{username}/"
-
         if not File.exists?(build_script)
           STDERR.puts "File #{build_script} not found"
           return false
         end
 
-        upload(build_script, work_dir)
+        upload(build_script, @workdir)
 
-        cmd = %Q[bash /tmp/#{username}/#{build_script}]
+        cmd = %Q[bash #{@workdir}/#{build_script}]
 
         rc = run_ssh_command(cmd, :env => build_env)
         return (rc == 0)

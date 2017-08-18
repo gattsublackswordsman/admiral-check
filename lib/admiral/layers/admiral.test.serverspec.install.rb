@@ -26,7 +26,7 @@ module Admiral
           'GEM_CACHE' => cachedir,
         }
 
-        cmd = "/tmp/#{username}/#{$uid}.sh"
+        cmd = "#{@workdir}/#{$uid}.sh"
 
         rc = run_ssh_command(cmd, :allow_proxy => true, :env => env)
         return (rc == 0)

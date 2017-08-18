@@ -30,7 +30,7 @@ module Admiral
         applications.each do | application |
           application_code   = application['code']
           application_branch = application['branch']
-          cmd = "svn co --non-interactive --no-auth-cache  #{svn_cookbook_base_url}/#{application_code}/#{application_branch}/ #{modules_dir}/#{application_code}  --username=#{svn_user} --password=#{svn_password}; done"
+          cmd = "svn co --non-interactive --no-auth-cache  #{svn_cookbook_base_url}/#{application_code}/#{application_branch}/ #{modules_dir}/#{application_code}  --username=#{svn_user} --password=#{svn_password}"
           puts " - Retrieving cookbook for project #{application_code} from #{application_branch}"
 
           rc = run_ssh_command(cmd)
