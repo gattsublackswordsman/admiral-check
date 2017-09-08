@@ -20,6 +20,11 @@ module Admiral
         remote_spec_dir = "#{@workdir}/spec"
         local_spec_dir  = "test"
 
+        if not Dir.exists?(testdir)
+          STDERR.puts "Test directory not found"
+          return false
+        end
+
         upload(local_spec_dir, remote_spec_dir)
         return true
       end

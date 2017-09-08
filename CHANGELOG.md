@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+ - Move tests directory checking out of the core
  - Add core parameters checking in some actions
  - Add parameters type checking
  - Add optional parameters in layers
