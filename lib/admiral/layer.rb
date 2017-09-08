@@ -172,6 +172,8 @@ module Admiral
         return false
       rescue Net::SSH::AuthenticationFailed
         STDERR.puts "Layer has error : SSH - Authentication failed"
+      rescue Net::SCP::Error => e
+        STDERR.puts "Layer has an SCP error : #{e.message}"
         return false
       end
 
