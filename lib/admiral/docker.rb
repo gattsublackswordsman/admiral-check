@@ -238,34 +238,28 @@ module Admiral
 
     def self.test (platform)
       platform_name = platform['name']
-      testdir = "test"
-      if Dir.exists?(testdir)
-        puts "=== Run tests ==="
-        container_id = get_container_id(platform['name'])
-        docker = platform['docker']
 
-        if container_id
-          output = Admiral::Shell.local("docker  -H #{docker} inspect #{container_id}")
-          if output
-            ipaddress = extract_ipaddress(output)
-            success = self.apply_test_layers(platform, ipaddress)
-            if not success
-              STDERR.puts "One or more tests failed, run destroy"
-              destroy(platform)
-              exit!
-            end
-          else
-            STDERR.puts "Failed to get IP address"
+      puts "=== Run tests ==="
+      container_id = get_container_id(platform['name'])
+      docker = platform['docker']
+
+      if container_id
+        output = Admiral::Shell.local("docker  -H #{docker} inspect #{container_id}")
+        if output
+          ipaddress = extract_ipaddress(output)
+          success = self.apply_test_layers(platform, ipaddress)
+          if not success
+            STDERR.puts "One or more tests failed, run destroy"
             destroy(platform)
             exit!
           end
         else
-          STDERR.puts "Failed to container ID"
+          STDERR.puts "Failed to get IP address"
           destroy(platform)
           exit!
         end
       else
-        STDERR.puts "Test directory not found"
+        STDERR.puts "Failed to container ID"
         destroy(platform)
         exit!
       end
