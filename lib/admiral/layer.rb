@@ -34,13 +34,19 @@ module Admiral
       @description = description
       @config = config
       @ipaddress = ipaddress
-      @parameters = []
+      @mandatory_parameters = []
+      @optional_parameters  = []
       @workdir = "/tmp/#{@config['username']}/#{$uid}.d" if not config.nil?
     end
 
     def add_parameter(name, description)
        parameter = { 'name'=>name, 'description'=>description }
-       @parameters << parameter
+       @mandatory_parameters << parameter
+    end
+
+    def add_optional_parameter(name, description)
+       parameter = { 'name'=>name, 'description'=>description }
+       @optional_parameters << parameter
     end
 
     def set_workdir(workdir)
@@ -53,19 +59,29 @@ module Admiral
     def show_information
        puts "Layer UID:   #{$uid}"
        puts "Description: #{@description}"
-       if  @parameters.count > 0
-         puts "Paramaters:"
-         @parameters.each do | parameter |
+
+       if @mandatory_parameters.count > 0
+         puts "Mandatory parameters :"
+         @mandatory_parameters.each do | parameter |
            puts "  #{parameter['name']} / #{parameter['description']}"
          end
-       else
+       end
+
+       if @optional_parameters.count > 0
+         puts "Optional parameters :"
+         @optional_parameters.each do | parameter |
+           puts "  #{parameter['name']} / #{parameter['description']}"
+         end
+       end
+
+       if not @mandatory_parameters.count > 0 and not @optional_parameters.count > 0
          puts "No paramater"
        end
 
     end
 
     def verify ()
-      @parameters.each do | parameter |
+      @mandatory_parameters.each do | parameter |
         if not  @config.key?(parameter['name'])
           STDERR.puts "Layer #{$uid} requires the parameter #{parameter['name']}, but it is not found"
           return false
