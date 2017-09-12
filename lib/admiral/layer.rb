@@ -39,13 +39,25 @@ module Admiral
       @workdir = "/tmp/#{@config['username']}/#{$uid}.d" if not config.nil?
     end
 
-    def add_parameter(name, description)
-       parameter = { 'name'=>name, 'description'=>description }
+    def add_parameter(name, description, options = {} )
+       type = options.fetch(:type, String)
+
+       if type.class == Class
+         type = type.name
+       end
+
+       parameter = { 'name'=>name, 'description'=>description, 'type'=>type }
        @mandatory_parameters << parameter
     end
 
-    def add_optional_parameter(name, description)
-       parameter = { 'name'=>name, 'description'=>description }
+    def add_optional_parameter(name, description, options = {} )
+       type = options.fetch(:type, String)
+
+       if type.class == Class
+         type = type.name
+       end
+
+       parameter = { 'name'=>name, 'description'=>description, 'type'=>type }
        @optional_parameters << parameter
     end
 
@@ -82,11 +94,44 @@ module Admiral
 
     def verify ()
       @mandatory_parameters.each do | parameter |
-        if not  @config.key?(parameter['name'])
+        if @config.key?(parameter['name'])
+          if not parameter['type'].nil?
+            layer_parameter_type  = parameter['type']
+            config_parameter_type = @config[parameter['name']].class.name
+
+            if config_parameter_type == "TrueClass" or config_parameter_type == "FalseClass"
+              config_parameter_type = "Boolean"
+            end
+
+            if layer_parameter_type != config_parameter_type
+              puts "Parameter #{parameter['name']} must be #{layer_parameter_type}, found #{config_parameter_type}"
+              return false
+            end
+          end
+        else
           STDERR.puts "Layer #{$uid} requires the parameter #{parameter['name']}, but it is not found"
           return false
         end
       end
+
+      @optional_parameters.each do | parameter |
+        if @config.key?(parameter['name'])
+          if not parameter['type'].nil?
+            layer_parameter_type  = parameter['type']
+            config_parameter_type = @config[parameter['name']].class.name
+
+            if config_parameter_type == "TrueClass" or config_parameter_type == "FalseClass"
+              config_parameter_type = "Boolean"
+            end
+
+            if layer_parameter_type != config_parameter_type
+              puts "Parameter #{parameter['name']} must be #{layer_parameter_type}, found #{config_parameter_type}"
+              return false
+            end
+          end
+        end
+      end
+
       return true
     end
 
