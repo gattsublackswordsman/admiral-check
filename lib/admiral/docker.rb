@@ -8,13 +8,76 @@ require 'admiral/layer'
 module Admiral
   module Docker
 
-    @@core_parameters = ['docker', 'image', 'username', 'password', 'keyfile', 'pubkeyfile', 'registry', 'layers', 'tests', 'hostname']
+    @@core_parameters = [
+      'docker', 'image', 'username', 'password', 'keyfile', 'pubkeyfile', 'registry', 'hostname',
+      {
+        :name => 'layers',
+        :type => Array,
+      },
+      {
+        :name => 'tests',
+        :type => Array,
+      },
+      {
+        :name => 'volumes',
+        :type => Array,
+        :optional => true,
+      },
+      {
+        :name     => 'proxy_url',
+        :optional => true,
+      },
+      {
+        :name     => 'use_raw_image',
+        :type     => TrueClass,
+        :optional => true,
+      },
+      {
+        :name     => 'max_connection_retry',
+        :type     => Fixnum,
+        :optional => true,
+      },
+    ]
 
     def self.verify (platform)
       @@core_parameters.each do | parameter |
-        if not platform.key?(parameter)
-          STDERR.puts "Parameter #{parameter} not found"
-          exit!
+
+        if parameter.class == Hash
+          parameter_name     = parameter[:name]
+          parameter_type     = parameter.fetch(:type,String)
+          parameter_optional = parameter.fetch(:optional,false)
+
+          if parameter_type == TrueClass or  parameter_type == FalseClass
+            parameter_type = 'Boolean'
+          end
+
+          if not parameter_optional and not platform.key?(parameter_name)
+            STDERR.puts "Parameter #{parameter_name} not found"
+            exit!
+          elsif  platform.key?(parameter_name)
+            config_parameter = platform[parameter_name]
+            config_parameter_type = config_parameter.class
+
+            if config_parameter_type == TrueClass or config_parameter_type == FalseClass
+              config_parameter_type = 'Boolean'
+            end
+
+            if not config_parameter_type == parameter_type
+              STDERR.puts "Parameter #{parameter_name} must be #{parameter_type}, found #{config_parameter_type}"
+              exit!
+            end
+          end
+        else
+          if not platform.key?(parameter)
+            STDERR.puts "Parameter #{parameter} not found"
+            exit!
+          else
+            config_parameter_type = platform[parameter].class
+            if not config_parameter_type == String
+              STDERR.puts "Parameter #{parameter} must be String, found #{config_parameter_type}"
+              exit!
+            end
+          end
         end
       end
     end
