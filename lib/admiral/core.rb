@@ -22,7 +22,7 @@ module Admiral
     def create(platform_name)
 
        if  @config.platform?(platform_name)
-         Admiral::Docker::verify((@config[platform_name]))
+         Admiral::Docker::verify(@config[platform_name])
          Admiral::Docker::create(@config[platform_name])
        else
          STDERR.puts "Platform #{platform_name} don't exist"
@@ -61,6 +61,7 @@ module Admiral
 
     desc "login NAME", "Log in the container"
     def login(platform_name)
+      Admiral::Docker::verify(@config[platform_name])
       Admiral::Docker::create(@config[platform_name])
       if  @config.platform?(platform_name)
         Admiral::Docker::login(@config[platform_name])
@@ -73,6 +74,7 @@ module Admiral
     desc "test NAME", "Run the tests suite"
     def test(platform_name)
       if  @config.platform?(platform_name)
+        Admiral::Docker::verify(@config[platform_name])
         Admiral::Docker::create(@config[platform_name])
         Admiral::Docker::test(@config[platform_name])
         Admiral::Docker::destroy(@config[platform_name])
