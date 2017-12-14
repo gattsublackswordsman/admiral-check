@@ -15,5 +15,5 @@
 # limitations under the License.
 
 module Admiral
-    ADMIRAL__VERSION = "0.0.1"
+    ADMIRAL__VERSION = "0.0.2"
 end

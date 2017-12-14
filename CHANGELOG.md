@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## Unreleased
+## 0.0.2 - 2017-12-14
 
  - Move tests directory checking out of the core
  - Add core parameters checking in some actions
