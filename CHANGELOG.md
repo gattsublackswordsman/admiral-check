@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## 0.0.2.1 - 2017-12-21
+
+ - Fix type in admiral.svn.puppet.cookbook
+
 ## 0.0.2 - 2017-12-14
 
  - Move tests directory checking out of the core

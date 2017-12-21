@@ -15,7 +15,7 @@ module Admiral
         add_parameter('svn_cookbook_base_url', 'Root URL where are located the cookbooks in SVN (ex: https://domain.com/puppet-cookbooks)')
         add_parameter('svn_user', 'Username for SVN')
         add_parameter('svn_password', 'Password for SVN')
-        add_parameter('applications', 'List of hash that contains application code and source branch (ex: [ {"code"=>"appli1", "branch"=>"trunk"}, ]  )')
+        add_parameter('applications', 'List of hash that contains application code and source branch (ex: [ {"code"=>"appli1", "branch"=>"trunk"}, ]  )', :type => Array )
       end
 
       def do_action
